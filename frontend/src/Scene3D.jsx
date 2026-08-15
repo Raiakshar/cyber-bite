@@ -37,7 +37,7 @@ function ParticleField({ count = 700 }) {
       </bufferGeometry>
       <pointsMaterial
         size={0.05}
-        color="#67e8f9"
+        color="#00ff41"
         transparent
         opacity={0.85}
         sizeAttenuation
@@ -66,14 +66,14 @@ function CoreShield() {
     <Float speed={1.4} rotationIntensity={0.5} floatIntensity={0.8}>
       <group position={[0, 0, -4]}>
         <Icosahedron ref={outer} args={[2.1, 1]}>
-          <meshBasicMaterial color="#22d3ee" wireframe transparent opacity={0.28} />
+          <meshBasicMaterial color="#00ff41" wireframe transparent opacity={0.28} />
         </Icosahedron>
         <Icosahedron ref={inner} args={[1.4, 1]}>
-          <meshBasicMaterial color="#a78bfa" wireframe transparent opacity={0.45} />
+          <meshBasicMaterial color="#4dff88" wireframe transparent opacity={0.45} />
         </Icosahedron>
         <mesh ref={glow}>
           <sphereGeometry args={[0.55, 24, 24]} />
-          <meshBasicMaterial color="#22d3ee" transparent opacity={0.22} blending={THREE.AdditiveBlending} />
+          <meshBasicMaterial color="#00ff41" transparent opacity={0.22} blending={THREE.AdditiveBlending} />
         </mesh>
       </group>
     </Float>
@@ -103,7 +103,7 @@ function FloatingBits() {
         <Float key={i} speed={b.speed} rotationIntensity={1.4} floatIntensity={2}>
           <mesh position={b.position} scale={b.scale}>
             <octahedronGeometry args={[1, 0]} />
-            <meshBasicMaterial color={i % 2 ? '#67e8f9' : '#c4b5fd'} wireframe transparent opacity={0.55} />
+            <meshBasicMaterial color={i % 2 ? '#00ff41' : '#4dff88'} wireframe transparent opacity={0.55} />
           </mesh>
         </Float>
       ))}
@@ -131,10 +131,10 @@ export default function Scene3D() {
           gl={{ antialias: true, alpha: true }}
           fallback={<div className="scene3d-fallback" />}
         >
-          <color attach="background" args={['#020617']} />
-          <fog attach="fog" args={['#020617', 9, 22]} />
+          <color attach="background" args={['#020a04']} />
+          <fog attach="fog" args={['#020a04', 9, 22]} />
           <ambientLight intensity={0.5} />
-          <pointLight position={[6, 6, 6]} intensity={0.9} color="#22d3ee" />
+          <pointLight position={[6, 6, 6]} intensity={0.9} color="#00ff41" />
           <Stars radius={60} depth={40} count={1600} factor={3} saturation={0} fade speed={0.6} />
           <ParticleField count={700} />
           <CoreShield />
@@ -143,10 +143,10 @@ export default function Scene3D() {
             position={[0, -3.4, 0]}
             cellSize={0.65}
             cellThickness={0.6}
-            cellColor="#0ea5e9"
+            cellColor="#0a5c2c"
             sectionSize={3.25}
             sectionThickness={1.2}
-            sectionColor="#22d3ee"
+            sectionColor="#00ff41"
             fadeDistance={30}
             fadeStrength={1.6}
             infiniteGrid
