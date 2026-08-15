@@ -1,10 +1,20 @@
 # CyberBite — Your Local AI Security Copilot
 
+> ## ⚠️ EDUCATIONAL PURPOSE ONLY
+>
+> This project is built **strictly for educational, research, and authorized
+> testing purposes**. Use it only against your **own** systems, lab machines,
+> CTF platforms, and environments you are explicitly authorized to test.
+> Unauthorized scanning, exploitation, or use of any security tool against
+> systems you do not own is **illegal** and against the code of ethics of the
+> security community. The authors assume **no responsibility** for any misuse.
+> By using this software you agree that you alone are responsible for your
+> actions and that you will only use it in a legal, ethical, and authorized
+> manner.
+
 `$ cyber_bite@lab` — a self-hosted, private hacking/security assistant with
 **CHAT / ANALYZE / CODE / DETECT** modes, local AI (Ollama), RAG knowledge,
 an isolated tool sandbox, full audit logging, and role-based access control.
-
-Built for **educational, research and authorized testing purposes only**.
 
 ---
 
