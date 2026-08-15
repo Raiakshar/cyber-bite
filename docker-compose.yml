@@ -1,0 +1,74 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: cyberbite
+      POSTGRES_PASSWORD: cyberbite
+      POSTGRES_DB: cyberbite
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cyberbite"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollamadata:/root/.ollama
+    ports:
+      - "11434:11434"
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Builds the disposable lab-tools sandbox image (nmap/nikto/sqlmap/yara)
+  lab-tools:
+    build: ./sandbox
+    image: cyberbite/lab-tools:latest
+    command: ["echo", "sandbox image built"]
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      DATABASE_URL: postgresql+psycopg2://cyberbite:cyberbite@db:5432/cyberbite
+      OLLAMA_URL: http://ollama:11434
+      JWT_SECRET: ${JWT_SECRET:-change-this-secret}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-ChangeMe123!}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@cyberbite.lab}
+      SANDBOX_IMAGE: cyberbite/lab-tools:latest
+      SANDBOX_DATA_MOUNT: ${SANDBOX_DATA_MOUNT:-./data}
+      TOOL_EXECUTOR: docker
+      FREE_DAILY_MESSAGES: ${FREE_DAILY_MESSAGES:-10}
+      FREE_DAILY_TOKENS: ${FREE_DAILY_TOKENS:-20000}
+      FREE_TOOL_CALLS: ${FREE_TOOL_CALLS:-0}
+      FREE_MODES: ${FREE_MODES:-chat}
+    volumes:
+      - ./data:/data
+      - ./knowledge:/knowledge:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  dbdata:
+  ollamadata:

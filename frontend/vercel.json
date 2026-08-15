@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://cyberbite-api.vercel.app/api/$1"
+    }
+  ]
+}

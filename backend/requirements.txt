@@ -1,0 +1,11 @@
+fastapi>=0.110
+uvicorn[standard]>=0.29
+sqlalchemy>=2.0
+pydantic[email]>=2.6
+bcrypt>=4.1
+PyJWT>=2.8
+httpx>=0.27
+numpy>=1.26
+psycopg2-binary>=2.9
+# Optional: ChromaDB vector store (fallback lightweight store works without it)
+# chromadb>=0.5
