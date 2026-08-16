@@ -18,6 +18,8 @@ an isolated tool sandbox, full audit logging, and role-based access control.
 
 ---
 
+## Deployed Link : https://cyberbite-ai.vercel.app 
+
 ## What you get (mapped to the 10 slides)
 
 | Slide | Feature | Where |
