@@ -36,9 +36,9 @@ class Settings:
     # Used when available (e.g. serverless production where Ollama cannot run).
     # LLM_PROVIDER: auto (prefer hosted if key set, else Ollama) | hosted | ollama
     llm_provider: str = os.getenv("LLM_PROVIDER", "auto")
-    hosted_llm_url: str = os.getenv("HOSTED_LLM_URL", "https://api.groq.com/openai/v1")
-    hosted_llm_api_key: str = os.getenv("HOSTED_LLM_API_KEY", "")
-    hosted_llm_model: str = os.getenv("HOSTED_LLM_MODEL", "llama-3.3-70b-versatile")
+    hosted_llm_url: str = os.getenv("HOSTED_LLM_URL", "https://api.groq.com/openai/v1").strip()
+    hosted_llm_api_key: str = os.getenv("HOSTED_LLM_API_KEY", "").strip()
+    hosted_llm_model: str = os.getenv("HOSTED_LLM_MODEL", "llama-3.3-70b-versatile").strip()
 
     # --- RAG knowledge base ---
     rag_top_k: int = int(os.getenv("RAG_TOP_K", "4"))

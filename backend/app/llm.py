@@ -145,6 +145,7 @@ class HostedLLMClient:
         return {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
+            "Accept": "application/json",
         }
 
     def chat(self, messages: List[Dict[str, str]], temperature: float = 0.3,
@@ -159,31 +160,51 @@ class HostedLLMClient:
             "temperature": temperature,
             "max_tokens": max_tokens,
         }
-        try:
-            r = httpx.post(
-                f"{self.base_url}/chat/completions",
-                json=payload,
-                headers=self._headers(),
-                timeout=timeout,
-            )
-            r.raise_for_status()
-            data = r.json()
-            text = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
-            if not text:
-                raise HostedLLMError(
-                    f"{self.model} returned an empty response. "
-                    "Check the model name and your plan's quota."
+        # Some edge networks intermittently reject requests with a transient
+        # 401/429/5xx. Retry a few times with backoff before giving up.
+        last_error: Optional[Exception] = None
+        for attempt in range(4):
+            try:
+                r = httpx.post(
+                    f"{self.base_url}/chat/completions",
+                    json=payload,
+                    headers=self._headers(),
+                    timeout=timeout,
                 )
-            return text
-        except httpx.HTTPStatusError as e:
-            body = (e.response.text or "").strip()
-            detail = body[:400] + ("..." if len(body) > 400 else "")
-            raise HostedLLMError(
-                f"{self.model} returned HTTP {e.response.status_code}. "
-                f"Response: {detail or 'no response body'}"
-            ) from e
-        except httpx.RequestError as e:
-            raise HostedLLMError(f"Hosted LLM request failed: {e}") from e
+                if r.status_code == 200:
+                    data = r.json()
+                    text = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+                    if not text:
+                        raise HostedLLMError(
+                            f"{self.model} returned an empty response. "
+                            "Check the model name and your plan's quota."
+                        )
+                    return text
+                body = (r.text or "").strip()
+                detail = body[:400] + ("..." if len(body) > 400 else "")
+                if r.status_code in (401, 429) or r.status_code >= 500:
+                    last_error = HostedLLMError(
+                        f"{self.model} returned HTTP {r.status_code}. Response: {detail or 'no response body'}"
+                    )
+                    time.sleep(0.6 * (attempt + 1))
+                    continue
+                raise HostedLLMError(
+                    f"{self.model} returned HTTP {r.status_code}. Response: {detail or 'no response body'}"
+                )
+            except httpx.HTTPStatusError as e:
+                if e.response.status_code in (401, 429) or e.response.status_code >= 500:
+                    last_error = HostedLLMError(
+                        f"{self.model} returned HTTP {e.response.status_code}. "
+                        f"Response: {(e.response.text or '')[:400]}"
+                    )
+                    time.sleep(0.6 * (attempt + 1))
+                    continue
+                raise
+            except httpx.RequestError as e:
+                last_error = HostedLLMError(f"Hosted LLM request failed: {e}")
+                time.sleep(0.6 * (attempt + 1))
+                continue
+        raise last_error or HostedLLMError(f"{self.model} request failed after retries")
 
 
 ollama = OllamaClient()
